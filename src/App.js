@@ -12,6 +12,8 @@ import Review from './components/Review/Review';
 import NotFound from './components/NotFound/NotFound';
 import ProductDetail from './components/ProductDetail/ProductDetail';
 import Manage from './components/Manager/Manage';
+import Login from './components/Login/Login';
+import Shipment from './components/Shipment/Shipment';
 
 
 function App() {
@@ -35,7 +37,12 @@ function App() {
           <Route path="/manage">
             <Manage></Manage>
           </Route>
-
+          <Route path="/login">
+            <Login></Login>
+          </Route>
+          <Route path="/shipment">
+            <Shipment></Shipment>
+          </Route>
           <Route exact path="/">
             <Shop></Shop>
           </Route>
