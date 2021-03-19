@@ -1,0 +1,22 @@
+.shipment-container{
+    width: 500px;
+    margin:auto;
+    text-align:center;
+    margin-top: 30px;
+}
+.ship-form{
+	margin:30px 100px;
+}
+.form input{
+    width: 100%;
+    padding: 10px;
+    border-radius: 5px;
+    outline:none;
+    margin-bottom: 10px;
+    display: block;
+    border: 1px solid #ddd;
+}
+
+.error{
+	color:red;
+}

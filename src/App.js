@@ -5,8 +5,7 @@ import Shop from './components/Shop/Shop';
 import {
   BrowserRouter as Router,
   Switch,
-  Route,
-  Link
+  Route
 } from "react-router-dom";
 import Review from './components/Review/Review';
 import NotFound from './components/NotFound/NotFound';
@@ -14,16 +13,19 @@ import ProductDetail from './components/ProductDetail/ProductDetail';
 import Manage from './components/Manager/Manage';
 import Login from './components/Login/Login';
 import Shipment from './components/Shipment/Shipment';
+import { createContext, useState } from 'react';
+import PrivetRoute from './components/PrivetRoute/PrivetRoute';
 
+export const UserContext = createContext()
 
 function App() {
+  const [loggedInUser,setLoggedInUser] = useState({})
   return (
-    <div>
+    <UserContext.Provider value = {[loggedInUser,setLoggedInUser]}>
 
-        <Header></Header>
-
+        
       <Router>
-
+        <Header></Header>
         <Switch>
 
           <Route path="/shop">
@@ -34,15 +36,15 @@ function App() {
             <Review></Review>
           </Route>
 
-          <Route path="/manage">
+          <PrivetRoute path="/manage">
             <Manage></Manage>
-          </Route>
+          </PrivetRoute>
           <Route path="/login">
             <Login></Login>
           </Route>
-          <Route path="/shipment">
+          <PrivetRoute path="/shipment">
             <Shipment></Shipment>
-          </Route>
+          </PrivetRoute>
           <Route exact path="/">
             <Shop></Shop>
           </Route>
@@ -57,7 +59,7 @@ function App() {
 
         </Switch>
       </Router>
-    </div>
+    </UserContext.Provider>
   );
 }
  

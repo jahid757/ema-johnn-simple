@@ -11,7 +11,7 @@ const Review = () => {
     const [orderPlaced, setOrderPlaced] = useState(false);
     const history = useHistory()
 
-    const handelPlaceOrder = () => {
+    const handelProceedCheckOut = () => {
         // setCart([]);
         // setOrderPlaced(true);
         // processOrder();
@@ -60,7 +60,7 @@ const Review = () => {
             <div className="cart-container">
                 <Cart cart={cart}>
                 {/* <Link to="/review"> */}
-                    <button onClick={handelPlaceOrder} className="main-btn">Proceed Checkout</button>
+                    <button onClick={handelProceedCheckOut} className="main-btn">Proceed Checkout</button>
                 {/* </Link> */}
                 </Cart>
             </div>

@@ -1,13 +1,8 @@
 import './Login.css'
-import firebase from "firebase/app";
-import "firebase/auth";
-import firebaseConfig from '../../firebase.config';
-import { useState } from 'react';
-
-
-if(!firebase.apps.length){
-  firebase.initializeApp(firebaseConfig);
-  }
+import { useContext, useState } from 'react';
+import { UserContext } from '../../App';
+import { useHistory, useLocation } from 'react-router';
+import { createUserWithEmailAndPassword, handelFbSignIn, handelGoogleSignIn, handelSingOut, initializeLoginFramework, signInWithEmailAndPassword } from './LoginManager';
 
 function Login() {
   const [newUser,setNewUser] = useState(false)
@@ -20,60 +15,43 @@ function Login() {
     photoURL: '',
     success:false
   })
+  initializeLoginFramework();
 
-  const googleProvider = new firebase.auth.GoogleAuthProvider();
-  const fbProvider = new firebase.auth.FacebookAuthProvider();
+  const [loggedInUser,setLoggedInUser] = useContext(UserContext)
+  const history = useHistory();
+  const location = useLocation()
+  const { from } = location.state || { from: {pathname: "/"} };
 
-  const handelSignIn = () => {
-    firebase.auth().signInWithPopup(googleProvider)
-    .then(result =>{
-      console.log(result.user);
-      const {displayName,email,photoURL} = result.user;
-      const signedInUser = {
-        isSignIn: true,
-        name: displayName,
-        email: email,
-        photo: photoURL
-      }
-      setUser(signedInUser);
-      console.log(displayName,email,photoURL);
+  const googleSignIn = () => {
+    handelGoogleSignIn()
+    .then(response => {
+      handelResponse(response,true);
     })
-    .catch(error =>{
-      console.log(error)
-      console.log(error.message)
+  }
+  
+  const fbSignIn = () => {
+    handelFbSignIn()
+    .then(response => {
+      handelResponse(response,true);
     })
   }
 
-  const handelSingOut = () => {
-    firebase.auth().signOut()
-    .then(() =>{
-      const signedOutUser = {
-        isSignIn : false,
-        name:'',
-        email:'',
-        photo: ''
-      }
-      setUser(signedOutUser)
+  const singOut = () => {
+    handelSingOut()
+    .then(response => {
+      handelResponse(response,false);
     })
-    .catch(error => console.log(error))
+    
   }
 
-  const handelFbSignIn = () => {
-      firebase.auth().signInWithPopup(fbProvider).then((result) => {
-      const {displayName,email,photoURL} = result.user;
-      const signedInUser = {
-        isSignIn: true,
-        name: displayName,
-        email: email,
-        photo: photoURL
-      }
-      setUser(signedInUser);
-    })
-    .catch((error) => {
-      var errorMessage = error.message;
-      console.log(errorMessage);
-    });
+  const handelResponse = (response,redirect) =>{
+    setUser(response)
+    setLoggedInUser(response)
+    if(redirect){
+      history.replace(from)
+    }
   }
+
 
   const handelBlur = (e) => {
     let isFieldValid ;
@@ -98,63 +76,28 @@ function Login() {
   const handelSignUp = (e) =>{
     // register
     if(newUser && user.email && user.password){
-      firebase.auth().createUserWithEmailAndPassword(user.email, user.password)
-        .then((userCredential) => {
-          const newUserInfo = {...user}
-          newUserInfo.error = '';
-          newUserInfo.success = true;
-          setUser(newUserInfo)
-          updateUserName(user.name)
-        })
-        .catch((error) => {
-          const newUserInfo = {...user};
-          newUserInfo.error = error.message
-          newUserInfo.success = false;
-          setUser(newUserInfo);
-        });
+      createUserWithEmailAndPassword(user.name, user.email, user.password)
+      .then((response) =>{
+        handelResponse(response,true);
+      })
     }
 
     //Log in
 
     if(!newUser && user.email && user.password){
-      firebase.auth().signInWithEmailAndPassword(user.email, user.password)
-        .then((response) => {
-          const newUserInfo = {...user}
-          newUserInfo.error = '';
-          newUserInfo.success = true;
-          setUser(newUserInfo)
-          console.log('sign in info', response.user);
-        })
-        .catch((error) => {
-          const newUserInfo = {...user};
-          newUserInfo.error = error.message
-          newUserInfo.success = false;
-          setUser(newUserInfo);
-        });
+      signInWithEmailAndPassword(user.email,user.password)
+      .then(response =>{
+        handelResponse(response,true);
+      })
     }
     e.preventDefault();
   }
 
-  const updateUserName = name => {
-    const user = firebase.auth().currentUser;
 
-    user.updateProfile({
-      displayName: name,
-    }).then(function() {
-      console.log('user name Updated successfully')
-    }).catch(function(error) {
-      console.log(error)
-    });
-  }
 
   return (
-    <div className="App">
-      {
-        user.isSignIn ? <button onClick={handelSingOut}>Sign Out</button> : <button onClick={handelSignIn}>Sign in</button>
-      }
-      <br/>
-      <br/>
-      <button onClick={handelFbSignIn}> <i className="fab fa-facebook"></i> Log in With Facebook</button>
+    <div className="Login">
+      
       {
         user.isSignIn && <div>
           <h2>Welcome {user.name}</h2>
@@ -162,22 +105,34 @@ function Login() {
           <img src={user.photo} alt=""/>
         </div>
       }
-      <h1>Our Custom Login System</h1>
+
+      <h1>{newUser ? "Sign Up" : "Sign In"}</h1>
+
       <input type="checkbox" onChange={() => setNewUser(!newUser)} name="newUser" id="newUser"/>
-      <label htmlFor="newUser"> New User Registration</label>
-      <form onSubmit={handelSignUp}>
+      <label htmlFor="newUser">New User</label>
+
+      <form onSubmit={handelSignUp} className="form">
         {newUser && <input type="text" name="name" onBlur={handelBlur} placeholder="Name"/>}
-        <br/>
         <input type="email" onBlur={handelBlur} name="email" id="email" placeholder="Email" required/>
-        <br/>
         <input type="password" onBlur={handelBlur} name="password" id="pass" placeholder="Password" required/>
-        <br/>
         <input type="submit" value={newUser ? "Sign Up" : "Sign In"}/>
       </form>
+
       <p style={{color: 'red'}}>{user.error}</p>
+
+      {/* social Login Start */}
+
+      {
+        user.isSignIn ? <button className="google" onClick={singOut}><i className="fas fa-sign-out-alt"></i> Sign Out</button> : <button className="google" onClick={googleSignIn}> <i className="fab fa-google"></i> Sign in</button>
+      }
+      <button className="facebook" onClick={fbSignIn}> <i className="fab fa-facebook"></i> Sign in</button>
+
+      {/* social Login End */}
+
       {
         user.success && <p style={{color: 'green'}}>User {newUser ? 'Created' : 'Log in'} Successful</p>
       }
+
     </div>
   );
 }

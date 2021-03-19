@@ -1,3 +1,47 @@
 h1{
     text-align:center
 }
+.Login{
+    width: 500px;
+    margin:auto;
+    text-align:center
+}
+.form input{
+    width: 100%;
+    padding: 10px;
+    border-radius: 5px;
+    outline:none;
+    margin-bottom: 10px;
+    display: block;
+    border: 1px solid #ddd;
+}
+.form input[type="submit"]{
+    padding: 15px 30px;
+    width: fit-content;
+    text-align: center;
+    margin: auto;
+    background-color: #4285F4;
+    color: #fff;
+    font-size: 15px;
+    cursor: pointer;
+}
+button{
+    padding: 15px 30px;
+    font-size: 15px;
+    margin: 10px;
+    border: none;
+    outline: none;
+    border-radius: 5px;
+    cursor: pointer;
+    color: #fff;
+}
+button.facebook{
+    background-color: #3b5998;
+}
+button.google{
+    background-color: #DB4437;
+}
+label{
+    margin-bottom: 10px;
+    display: inline-block;
+}
